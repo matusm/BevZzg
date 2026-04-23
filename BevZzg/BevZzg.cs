@@ -10,56 +10,26 @@ namespace Bev.Zzg
     /// </summary>
     public class BevZzg
     {
-        #region Fields
         private static int DELAY = 5;       // Delay time in ms, between sending and reading
-        private bool bConnected;            // true if connection to ZZG ok
-        private string sComPort;            // name of the COM port
-        private string sName;               // designation of instrument (user supplied)
-        private SerialPort portCOM;         // the com port object
-        #endregion
+        private bool isConnected;           // true if connection to ZZG ok
+        private string comPortName;         // name of the COM port
+        private string instrumentName;      // designation of instrument (user supplied)
+        private SerialPort comPort;         // the com port object
 
-        #region Properties
+        public bool IsConnected => isConnected;
+        public string ComPort => comPortName;
+        public string InstrumentName => instrumentName;
 
-        /// <summary>
-        /// Gets a bool value indicating whether this instrument is connected.
-        /// </summary>
-        /// <value><c>true</c> if the instrument is connected; otherwise, <c>false</c>.</value>
-        public bool IsConnected { get { return bConnected; } }
-
-        /// <summary>
-        /// Gets the COM port supplied in the constructor.
-        /// </summary>
-        /// <value>The COM port name.</value>
-        public string ComPort { get { return sComPort; } }
-
-        /// <summary>
-        /// Gets the name of the instrument.
-        /// </summary>
-        public string InstrumentName { get { return sName; } }
-
-        #endregion
-
-        #region Ctor
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Bev.Zzg.BevZzg"/> class.
-        /// </summary>
-        /// <remarks>It has a very restricted functionality. Instrument is not connected.</remarks>
-        /// <param name="sCom">The name of the COM port.</param>
         public BevZzg(string sCom, string name)
         {
-            sName = name.Trim();
-            if (sName == "") sName = "<unknown>";
-            sComPort = sCom.ToUpper().Trim();
-            bConnected = false;
+            instrumentName = name.Trim();
+            if (instrumentName == "") instrumentName = "<unknown>";
+            comPortName = sCom.ToUpper().Trim();
+            isConnected = false;
             Connect();
         }
-        public BevZzg(string sCom) : this(sCom, "")
-        { }
+        public BevZzg(string sCom) : this(sCom, "") { }
         
-        #endregion
-
-        #region Public methods - Query instrument
 
         public string QueryTime()
         {
@@ -97,10 +67,6 @@ namespace Bev.Zzg
             if (reply.Length != 16) return "";
             return reply.Substring(2);
         }
-
-        #endregion
-
-        #region Public methods - Query instrument until success 
 
         public string QueryDate(int loop)
         {
@@ -141,10 +107,6 @@ namespace Bev.Zzg
             return ret;
         }
 
-        #endregion
-
-        #region Public methods - Set instrument parameters and setting
-
         /// <summary>
         /// Sets the ZZG's time. The supplied string must be of the correct format.
         /// </summary>
@@ -153,7 +115,7 @@ namespace Bev.Zzg
         /// <remarks>Synchronisation problem!</remarks>
         public bool SetTime(string str)
         {
-            if (str.Length != 6)    // primitive syntax check
+            if (str.Length != 6)    // basic syntax check
                 return false;
             return SendCommand("U="+str);
         }
@@ -162,10 +124,7 @@ namespace Bev.Zzg
         /// Sets the ZZG's time to system time.
         /// </summary>
         /// <returns><c>true</c>, if time was set, <c>false</c> otherwise.</returns>
-        public bool SetTime()
-        {
-            return SetTime(DateTime.UtcNow.ToString("HHmmss"));
-        }
+        public bool SetTime() => SetTime(DateTime.UtcNow.ToString("HHmmss"));
 
         /// <summary>
         /// Sets the ZZG's date. The supplied string must be of the correct format.
@@ -184,19 +143,13 @@ namespace Bev.Zzg
         /// Sets the ZZG's date to system date.
         /// </summary>
         /// <returns><c>true</c>, if time was set, <c>false</c> otherwise.</returns>
-        public bool SetDate()
-        {
-            return SetDate(DateTime.UtcNow.ToString("ddMMyy"));
-        }
+        public bool SetDate() => SetDate(DateTime.UtcNow.ToString("ddMMyy"));
 
-        #endregion
-
-        #region Public methods - high level synchro check
         public BevZzgStatus CheckSynchro()
         {
             Connect();
 
-            if (!bConnected)
+            if (!isConnected)
                 return BevZzgStatus.NotConnected;
 
             int TIMELOOP = 50;
@@ -248,67 +201,54 @@ namespace Bev.Zzg
             return result.Status;
         }
 
-        #endregion
-
-        #region Public methods - Connect/Disconnect
-
         public bool Connect()
         {
-            if (bConnected)
+            if (isConnected)
                 return false;
             try
             {
-                portCOM = new SerialPort(sComPort, 4800, Parity.None, 8, StopBits.One);
+                comPort = new SerialPort(comPortName, 4800, Parity.None, 8, StopBits.One);
                 // the following settings are not documented -> subject to experiments
-                portCOM.Handshake = Handshake.None; //TODO
-                portCOM.ReadTimeout = 100;
-                portCOM.WriteTimeout = 100;
-                portCOM.RtsEnable = false; //TODO
-                portCOM.DtrEnable = false; //TODO
-                portCOM.Open();
-                bConnected = true;
+                comPort.Handshake = Handshake.None; //TODO
+                comPort.ReadTimeout = 100;
+                comPort.WriteTimeout = 100;
+                comPort.RtsEnable = false; //TODO
+                comPort.DtrEnable = false; //TODO
+                comPort.Open();
+                isConnected = true;
                 if (QueryAB(5) == "") Disconnect(); // check on senseful reply
                 return true;
             }
             catch (Exception)
             {
-                bConnected = false;
+                isConnected = false;
                 return false;
             }
         }
  
         public bool Disconnect()
         {
-            if (!bConnected)
+            if (!isConnected)
                 return false;
-            if (portCOM.IsOpen) 
+            if (comPort.IsOpen) 
             {
-                portCOM.Close();
-                bConnected = false;
+                comPort.Close();
+                isConnected = false;
                 return true;
             }
-            bConnected = false;
+            isConnected = false;
             return false;
         }
 
-        #endregion
-
-        #region Private methods - basics
-
-        /// <summary>
-        /// Sends a command (string) to the instrument via RS232. Adds a carriage return to the string.
-        /// </summary>
-        /// <returns><c>true</c>, if successful, <c>false</c> otherwise.</returns>
-        /// <param name="sCommand">A command as string.</param>
         private bool SendCommand(string sCommand)
         {
-            if (!bConnected) return false;
-            portCOM.DiscardInBuffer();
+            if (!isConnected) return false;
+            comPort.DiscardInBuffer();
             sCommand += "\r";
             byte[] cmd = Encoding.ASCII.GetBytes(sCommand);
             try
             {
-                portCOM.Write(cmd, 0, cmd.Length);
+                comPort.Write(cmd, 0, cmd.Length);
             }
             catch (Exception)
             {
@@ -318,31 +258,12 @@ namespace Bev.Zzg
             return true;
         }
 
-        //private string ReadLine()
-        //{
-        //    string temp = "";
-        //    int i = 0;
-        //    while (!temp.Contains("\n") && i < MAXLOOP)
-        //    {
-        //        temp = ReadBytes();
-        //        i++;
-        //        Thread.Sleep(DELAY);
-        //    }
-        //    temp = temp.Replace("\n", "");
-        //    temp = temp.Replace("\r", "");
-        //    return temp;
-        //}
-
-        /// <summary>
-        /// Reads a line from the instrument. Usually a reply to a sent command.
-        /// </summary>
-        /// <returns>The read string, empty if not successful.</returns>
         private string ReadLine()
         {
-            if (!bConnected) return "";
+            if (!isConnected) return "";
             string temp = "";
             try
-                { temp = portCOM.ReadLine(); }
+                { temp = comPort.ReadLine(); }
             catch(Exception)
                 { return temp; }
             temp = temp.Replace("\n", "");
@@ -351,36 +272,12 @@ namespace Bev.Zzg
         }
 
         /// <summary>
-        /// Receives a character array from the instrument. Converted tu a string.
-        /// </summary>
-        /// <remarks>Can be an empty string even when working.</remarks>
-        /// <returns>The string received.</returns>
-        private string ReadBytes()
-        {
-            if (!bConnected) return "";
-            byte[] buffer = new byte[portCOM.BytesToRead];
-            try
-            {
-                portCOM.Read(buffer, 0, buffer.Length);
-                return Encoding.UTF8.GetString(buffer);
-            }
-            catch (Exception)
-            {
-                return "";
-            }
-        }
-
-        #endregion
-
-        #region Private methods - high level
-
-        /// <summary>
         /// Checks if the ZZG time is synchronous with system time.
         /// </summary>
         /// <returns>Synchronization status.</returns>
         private BevZzgStatus CheckTimeSynchro()
         {
-            if (!bConnected)
+            if (!isConnected)
                 return BevZzgStatus.NotConnected;
             
             string sysTimeBegin = DateTime.UtcNow.ToString("HHmmss");
@@ -405,7 +302,7 @@ namespace Bev.Zzg
         /// <returns>Synchronization status.</returns>
         private BevZzgStatus CheckDateSynchro()
         {
-            if (!bConnected)
+            if (!isConnected)
                 return BevZzgStatus.NotConnected;
 
             string sysDateBegin = DateTime.UtcNow.ToString("ddMMyy");
@@ -424,12 +321,7 @@ namespace Bev.Zzg
             return ret; // is BevZzgStatus.Synchron here
         }
 
-        #endregion
-
-        public override string ToString()
-        {
-            return string.Format("[{0}@{1}]", sName, sComPort);
-        }
+        public override string ToString() => $"[{instrumentName}@{comPortName}]";
 
     }
 }
