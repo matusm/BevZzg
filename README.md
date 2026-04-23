@@ -1,5 +1,5 @@
-TestZzg - NMM Data to BCR Converter
-===================================
+TestZzg - A ZZG monitor
+=======================
 
 A standalone command line tool to monitor the time signal generators of the [BEV](https://www.bev.gv.at). These time signal generators (ZZG, "Zeitzeichengeber" in German) are used to distribute time signals over the telephone network.
 
