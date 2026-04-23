@@ -4,7 +4,6 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Text;
 using At.Matus.UI.ConsoleUI;
-//using MyConsoleUI;
 using TestZZG.Properties;
 
 namespace Bev.Zzg
@@ -15,15 +14,13 @@ namespace Bev.Zzg
 
         public static void Main(string[] args)
         {
-            // all settings are stored in TestZZG.exe.config
-            Settings settings = new Settings();
-            string sFilename = Path.Combine(settings.LogFilePath, settings.LogFileName);
+            Settings settings = new Settings(); // all settings are stored in TestZZG.exe.config
+            string fileName = Path.Combine(settings.LogFilePath, settings.LogFileName);
 
-            // instantiate the basic console UI and give welcome message
             ConsoleUI.Welcome();
 
             // logging program start
-            Logging(sFilename, string.Format("# {0} Program {1}, version {2},    started.", DateTime.UtcNow.ToString("dd.MM.yyyy HH:mm:ss"), ConsoleUI.Title, ConsoleUI.Version));
+            Logging(fileName, $"# {DateTime.UtcNow.ToString("dd.MM.yyyy HH:mm:ss")} Program {ConsoleUI.Title}, version {ConsoleUI.Version}");
 
             // The ctrl+C event handler just sets a bool field.
             // Interference with lengthy operations are thus avoided
@@ -46,54 +43,53 @@ namespace Bev.Zzg
 
             // print out basic parameters
             ConsoleUI.WriteLine();
-            ConsoleUI.WriteLine("Log file: " + sFilename);
-            ConsoleUI.WriteLine("Polling interval: " + settings.PollingMinutes + " min");
-            foreach (var z in zzgs) ConsoleUI.WriteLine("Instrument: " + z.ToString());
+            ConsoleUI.WriteLine($"Log file: {fileName}");
+            ConsoleUI.WriteLine($"Polling interval: {settings.PollingMinutes} min");
+            foreach (var z in zzgs) ConsoleUI.WriteLine($"Instrument: {z}");
             ConsoleUI.WriteLine();
 
             // prepare the result text line with StringBuilder
-            StringBuilder sb = new StringBuilder(100);
+            StringBuilder sb = new StringBuilder();
             BevZzgStatus status;
-            bool bAlert = false; // true if at least one instrument's status is not "Synchron"
+            bool alert = false; // true if at least one instrument's status is not "Synchron"
 
-            // here comes the polling loop
             while (!exitLoop)
             {
-                bAlert = false;
+                alert = false;
                 sb.Clear();
-                sb.Append(string.Format("  {0}", DateTime.UtcNow.ToString("dd.MM.yyyy HH:mm:ss")));
+                sb.Append($"  {DateTime.UtcNow.ToString("dd.MM.yyyy HH:mm:ss")}");
 
                 foreach (var z in zzgs)
                 {
                     // checking ZZG
-                    ConsoleUI.StartOperation("checking " + z.ToString());
+                    ConsoleUI.StartOperation($"checking  {z}");
                     status = z.CheckSynchro();
-                    ConsoleUI.Done(" -> "+status.ToString());
+                    ConsoleUI.Done($" -> {status}");
 
                     // complete the result line
-                    sb.Append(string.Format(" {0}->{1}", z, status));
+                    sb.Append($" {z}->{status}");
 
                     // set alert flag
-                    if (status != BevZzgStatus.Synchron) bAlert = true;
+                    if (status != BevZzgStatus.Synchron) alert = true;
 
                     // check break condition
-                    if (exitLoop) ExitOnCtrlC(sFilename);
+                    if (exitLoop) ExitOnCtrlC(fileName);
                 }
 
                 // check break condition
-                if (exitLoop) ExitOnCtrlC(sFilename);
+                if (exitLoop) ExitOnCtrlC(fileName);
 
-                if (bAlert) sb[0] = '!';
+                if (alert) sb[0] = '!';
 
                 // log result
-                ConsoleUI.WritingFile(sFilename);
-                if (Logging(sFilename, sb.ToString()))
+                ConsoleUI.WritingFile(fileName);
+                if (Logging(fileName, sb.ToString()))
                     ConsoleUI.Done();
                 else
                     ConsoleUI.Abort();
 
                 // Alert!
-                if (bAlert) AlertUser();
+                if (alert) AlertUser();
 
                 ConsoleUI.WriteLine();
 
@@ -101,18 +97,12 @@ namespace Bev.Zzg
                 for (int i = 0; i < settings.PollingMinutes*120-10; i++) 
                 {
                     Thread.Sleep(500);
-                    if (exitLoop) ExitOnCtrlC (sFilename); 
+                    if (exitLoop) ExitOnCtrlC (fileName); 
                 }
             }
-            ExitOnCtrlC(sFilename);
+            ExitOnCtrlC(fileName);
         }
 
-        /// <summary>
-        /// This is the very basic logger for the application.
-        /// </summary>
-        /// <param name="filename">Name of log-file.</param>
-        /// <param name="line">Line of text to be logged in file.</param>
-        /// <returns></returns>
         static bool Logging(string filename, string line)
         {
             try
@@ -128,7 +118,7 @@ namespace Bev.Zzg
 
         static void ExitOnCtrlC(string filename)
         {
-            Logging(filename, string.Format ("# {0} Program stopped by user (CTRL+C).", DateTime.UtcNow.ToString ("dd.MM.yyyy HH:mm:ss")));
+            Logging(filename, $"# {DateTime.UtcNow.ToString("dd.MM.yyyy HH:mm:ss")} Program stopped by user (CTRL+C).");
             Environment.Exit(0);
         }
 
