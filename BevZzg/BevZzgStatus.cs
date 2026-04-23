@@ -1,10 +1,9 @@
-﻿using System;
+﻿// Enumeration of possible synchronization states
+
+using System;
 
 namespace Bev.Zzg
 {
-    /// <summary>
-    /// Enumeration of possible synchronization states
-    /// </summary>
     [Flags]
     public enum BevZzgStatus
     {

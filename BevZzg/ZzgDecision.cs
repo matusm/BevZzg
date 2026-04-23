@@ -2,14 +2,13 @@
 {
     public class ZzgDecision
     {
-        BevZzgStatus status;
-        int nSync;
-        int nAsync;
-        int nSysTimeChanged;
-        int nNoResponse;
-        int nLoop;
+        private int nSync;
+        private int nAsync;
+        private int nSysTimeChanged;
+        private int nNoResponse;
+        private int nLoop;
 
-        public BevZzgStatus Status {get{return status;}}
+        public BevZzgStatus Status { get; }
 
         public ZzgDecision(int n1, int n2, int n3, int n4, int max)
         {
@@ -18,7 +17,7 @@
             nSysTimeChanged = n3;
             nNoResponse = n4;
             nLoop = max;
-            status = Decision();
+            Status = Decision();
         }
 
         private BevZzgStatus Decision()
@@ -41,10 +40,7 @@
             return BevZzgStatus.Unspecified;
         }
 
-        public override string ToString()
-        {
-            return string.Format("[ZzgDecision: Status={0}]", Status);
-        }
+        public override string ToString() => $"[ZzgDecision: Status={Status}]";
     }
 }
 
