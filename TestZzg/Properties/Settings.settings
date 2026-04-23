@@ -1,0 +1,27 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="TestZZG.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Port1" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">COM110</Value>
+    </Setting>
+    <Setting Name="Port2" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">COM21</Value>
+    </Setting>
+    <Setting Name="Name1" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">ZZG_BEV001</Value>
+    </Setting>
+    <Setting Name="Name2" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">ZZG_BEV002</Value>
+    </Setting>
+    <Setting Name="LogFilePath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\Temp</Value>
+    </Setting>
+    <Setting Name="LogFileName" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">ZZGlogging.log</Value>
+    </Setting>
+    <Setting Name="PollingMinutes" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
