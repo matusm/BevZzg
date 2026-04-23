@@ -3,7 +3,8 @@ using System.IO;
 using System.Threading;
 using System.Collections.Generic;
 using System.Text;
-using MyConsoleUI;
+using At.Matus.UI.ConsoleUI;
+//using MyConsoleUI;
 using TestZZG.Properties;
 
 namespace Bev.Zzg
@@ -19,11 +20,10 @@ namespace Bev.Zzg
             string sFilename = Path.Combine(settings.LogFilePath, settings.LogFileName);
 
             // instantiate the basic console UI and give welcome message
-            var ui = new MyUI();
-            ui.Welcome();
+            ConsoleUI.Welcome();
 
             // logging program start
-            Logging(sFilename, string.Format("# {0} Program {1}, version {2},    started.", DateTime.UtcNow.ToString("dd.MM.yyyy HH:mm:ss"), ui.Title, ui.Version));
+            Logging(sFilename, string.Format("# {0} Program {1}, version {2},    started.", DateTime.UtcNow.ToString("dd.MM.yyyy HH:mm:ss"), ConsoleUI.Title, ConsoleUI.Version));
 
             // The ctrl+C event handler just sets a bool field.
             // Interference with lengthy operations are thus avoided
@@ -45,11 +45,11 @@ namespace Bev.Zzg
             zzgs.Add(new BevZzg(settings.Port2, settings.Name2)); // instantiate a ZZG, connect to it and add to list
 
             // print out basic parameters
-            ui.EmptyLine();
-            ui.WriteLine("Log file: " + sFilename);
-            ui.WriteLine("Polling interval: " + settings.PollingMinutes + " min");
-            foreach (var z in zzgs) ui.WriteLine("Instrument: " + z.ToString());
-            ui.EmptyLine();
+            ConsoleUI.WriteLine();
+            ConsoleUI.WriteLine("Log file: " + sFilename);
+            ConsoleUI.WriteLine("Polling interval: " + settings.PollingMinutes + " min");
+            foreach (var z in zzgs) ConsoleUI.WriteLine("Instrument: " + z.ToString());
+            ConsoleUI.WriteLine();
 
             // prepare the result text line with StringBuilder
             StringBuilder sb = new StringBuilder(100);
@@ -66,9 +66,9 @@ namespace Bev.Zzg
                 foreach (var z in zzgs)
                 {
                     // checking ZZG
-                    ui.StartOperation("checking " + z.ToString());
+                    ConsoleUI.StartOperation("checking " + z.ToString());
                     status = z.CheckSynchro();
-                    ui.Done(" -> "+status.ToString());
+                    ConsoleUI.Done(" -> "+status.ToString());
 
                     // complete the result line
                     sb.Append(string.Format(" {0}->{1}", z, status));
@@ -86,16 +86,16 @@ namespace Bev.Zzg
                 if (bAlert) sb[0] = '!';
 
                 // log result
-                ui.WritingFile(sFilename);
+                ConsoleUI.WritingFile(sFilename);
                 if (Logging(sFilename, sb.ToString()))
-                    ui.Done();
+                    ConsoleUI.Done();
                 else
-                    ui.Abort();
+                    ConsoleUI.Abort();
 
                 // Alert!
                 if (bAlert) AlertUser();
 
-                ui.EmptyLine();
+                ConsoleUI.WriteLine();
 
                 // now wait, give chance to stop every half second
                 for (int i = 0; i < settings.PollingMinutes*120-10; i++) 

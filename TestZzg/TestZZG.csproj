@@ -30,8 +30,8 @@
     <ExternalConsole>true</ExternalConsole>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MyConsoleUI">
-      <HintPath>..\..\MyConsoleUI\MyConsoleUI\bin\Release\MyConsoleUI.dll</HintPath>
+    <Reference Include="At.Matus.UI.ConsoleUI">
+      <HintPath>..\..\At.Matus.UI.ConsoleUI\At.Matus.UI.ConsoleUI\bin\Release\At.Matus.UI.ConsoleUI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
