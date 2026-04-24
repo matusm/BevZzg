@@ -1,6 +1,6 @@
 ﻿namespace Bev.Zzg
 {
-    public class ZzgDecision
+    public class ZzgStatusClassifier
     {
         private int nSync;
         private int nAsync;
@@ -10,17 +10,17 @@
 
         public BevZzgStatus Status { get; }
 
-        public ZzgDecision(int n1, int n2, int n3, int n4, int max)
+        public ZzgStatusClassifier(int n1, int n2, int n3, int n4, int max)
         {
             nSync = n1;
             nAsync = n2;
             nSysTimeChanged = n3;
             nNoResponse = n4;
             nLoop = max;
-            Status = Decision();
+            Status = Classifier();
         }
 
-        private BevZzgStatus Decision()
+        private BevZzgStatus Classifier()
         {
             // if only no response -> NoResponse
             if (nNoResponse == nLoop) return BevZzgStatus.NoResponse; 
@@ -40,7 +40,7 @@
             return BevZzgStatus.Unspecified;
         }
 
-        public override string ToString() => $"[ZzgDecision: Status={Status}]";
+        public override string ToString() => $"[ZzgStatusClassifier: Status={Status}]";
     }
 }
 

@@ -12,19 +12,17 @@ namespace Bev.Zzg
     {
         private static int DELAY = 5;       // Delay time in ms, between sending and reading
         private bool isConnected;           // true if connection to ZZG ok
-        private string comPortName;         // name of the COM port
-        private string instrumentName;      // designation of instrument (user supplied)
         private SerialPort comPort;         // the com port object
 
         public bool IsConnected => isConnected;
-        public string ComPort => comPortName;
-        public string InstrumentName => instrumentName;
+        public string ComPortName { get; }
+        public string InstrumentName { get; }
 
-        public BevZzg(string sCom, string name)
+        public BevZzg(string comPort, string name)
         {
-            instrumentName = name.Trim();
-            if (instrumentName == "") instrumentName = "<unknown>";
-            comPortName = sCom.ToUpper().Trim();
+            InstrumentName = name.Trim();
+            if (InstrumentName == "") InstrumentName = "<unknown>";
+            ComPortName = comPort.ToUpper().Trim();
             isConnected = false;
             Connect();
         }
@@ -197,7 +195,7 @@ namespace Bev.Zzg
                     nNoCon++;
             }
 
-            var result = new ZzgDecision(nSync, nAsyncTime, nSysTimeChanged, nNoResp, TIMELOOP);
+            var result = new ZzgStatusClassifier(nSync, nAsyncTime, nSysTimeChanged, nNoResp, TIMELOOP);
             return result.Status;
         }
 
@@ -207,7 +205,7 @@ namespace Bev.Zzg
                 return false;
             try
             {
-                comPort = new SerialPort(comPortName, 4800, Parity.None, 8, StopBits.One);
+                comPort = new SerialPort(ComPortName, 4800, Parity.None, 8, StopBits.One);
                 // the following settings are not documented -> subject to experiments
                 comPort.Handshake = Handshake.None; //TODO
                 comPort.ReadTimeout = 100;
@@ -321,7 +319,7 @@ namespace Bev.Zzg
             return ret; // is BevZzgStatus.Synchron here
         }
 
-        public override string ToString() => $"[{instrumentName}@{comPortName}]";
+        public override string ToString() => $"[{InstrumentName}@{ComPortName}]";
 
     }
 }
